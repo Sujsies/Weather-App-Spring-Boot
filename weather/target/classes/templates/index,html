@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Weather Map</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; }
+        #sidebar { width: 300px; padding: 20px; background: #f4f4f4; overflow-y: auto; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        #map { flex-grow: 1; height: 100%; cursor: crosshair; }
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; }
+        .forecast-item { border-bottom: 1px solid #ddd; padding: 5px 0; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Weather App</h2>
+        <p>Click anywhere on the map to get the forecast.</p>
+        
+        <div id="weather-container" style="display:none;">
+            <div class="card">
+                <h3>Current Weather</h3>
+                <p><strong>City:</strong> <span id="city-name">-</span></p>
+                <p><strong>Temp:</strong> <span id="temp">-</span> °C</p>
+                <p><strong>Humidity:</strong> <span id="humidity">-</span> %</p>
+                <p><strong>Condition:</strong> <span id="condition">-</span></p>
+            </div>
+
+            <h3>5-Day Forecast</h3>
+            <div id="forecast-container" class="card">
+                </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Initialize Map (Centered on India)
+        var map = L.map('map').setView([20.5937, 78.9629], 5);
+
+        // 2. Add OpenStreetMap Tile Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+
+        // 3. Handle Map Click
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lon;
+
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lon]).addTo(map);
+
+            fetchWeather(lat, lon);
+            fetchForecast(lat, lon);
+        });
+
+        // 4. Fetch Current Weather
+        function fetchWeather(lat, lon) {
+            fetch(`/api/weather?lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('weather-container').style.display = 'block';
+                    document.getElementById('city-name').innerText = data.name || "Unknown Location";
+                    document.getElementById('temp').innerText = data.main.temp;
+                    document.getElementById('humidity').innerText = data.main.humidity;
+                    document.getElementById('condition').innerText = data.weather[0].description;
+                })
+                .catch(err => console.error("Error:", err));
+        }
+
+        // 5. Fetch Forecast
+        function fetchForecast(lat, lon) {
+            fetch(`/api/forecast?lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('forecast-container');
+                    container.innerHTML = ""; 
+                    // Take every 8th item (24 hours)
+                    for (let i = 0; i < data.list.length; i += 8) {
+                        const item = data.list[i];
+                        const date = new Date(item.dt * 1000).toLocaleDateString();
+                        const div = document.createElement('div');
+                        div.className = 'forecast-item';
+                        div.innerHTML = `<strong>${date}</strong>: ${item.main.temp}°C, ${item.weather[0].description}`;
+                        container.appendChild(div);
+                    }
+                })
+                .catch(err => console.error("Error:", err));
+        }
+    </script>
+</body>
+</html>
