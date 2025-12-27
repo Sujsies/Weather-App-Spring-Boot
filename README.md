@@ -28,7 +28,7 @@ Before running the application, ensure you have the following installed:
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/Weather-App-Spring-Boot.git](https://github.com/YOUR_USERNAME/Weather-App-Spring-Boot.git)
+    git clone [https://github.com/Sujsies/Weather-App-Spring-Boot/tree/main](https://github.com/Sujsies/Weather-App-Spring-Boot/tree/main.git)
     cd Weather-App-Spring-Boot
     ```
 
