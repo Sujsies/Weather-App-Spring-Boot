@@ -55,9 +55,7 @@ Before running the application, ensure you have the following installed:
     * Open your browser and navigate to: `http://localhost:8081`
 
 ## 📸 Screenshots
-
-*(You can upload screenshots of your map here to show off your project!)*
-
+(https://github.com/Sujsies/Weather-App-Spring-Boot/tree/main/app%20screenshots)
 ## 🤝 Contributing
 
 1.  Fork the repository.
